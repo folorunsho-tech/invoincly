@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Montserrat_Alternates } from "next/font/google";
+import { Montserrat_Alternates } from "next/font/google";
 import "./globals.css";
 import "@mantine/core/styles.css";
 
@@ -23,7 +23,15 @@ export default function RootLayout({
 	return (
 		<html lang='en' {...mantineHtmlProps}>
 			<body className={`${montserrat.variable} antialiased`}>
-				<MantineProvider defaultColorScheme='light'>{children}</MantineProvider>
+				<MantineProvider
+					defaultColorScheme='auto'
+					theme={{
+						primaryColor: "indigo",
+						fontFamily: "var(--font-montserrat)",
+					}}
+				>
+					{children}
+				</MantineProvider>
 			</body>
 		</html>
 	);

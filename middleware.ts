@@ -1,8 +1,24 @@
 import { type NextRequest } from "next/server";
 import { updateSession } from "@/utils/supabase/middleware";
+import { NextResponse } from "next/server";
+const PUBLIC_PATHS = [
+	"/login",
+	"/signup",
+	"/verify-email",
+	"/forgot-password",
+	"/reset-password",
+	"/terms",
+	"/privacy-policy",
+];
 
-export async function middleware(request: NextRequest) {
-	return await updateSession(request);
+export async function middleware(req: NextRequest) {
+	const { pathname } = req.nextUrl;
+	// Allow public routes
+	if (PUBLIC_PATHS.some((path) => pathname.startsWith(path))) {
+		return NextResponse.next();
+	}
+
+	return await updateSession(req);
 }
 
 export const config = {
