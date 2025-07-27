@@ -1,6 +1,8 @@
 import { type NextRequest } from "next/server";
 import { updateSession } from "@/utils/supabase/middleware";
 import { NextResponse } from "next/server";
+import { createClient } from "./utils/supabase/server";
+
 const PUBLIC_PATHS = [
 	"/login",
 	"/signup",
@@ -13,7 +15,13 @@ const PUBLIC_PATHS = [
 
 export async function middleware(req: NextRequest) {
 	const { pathname } = req.nextUrl;
-	// Allow public routes
+	const supabase = await createClient();
+	const {
+		data: { user },
+	} = await supabase.auth.getUser();
+	if (user && pathname.startsWith("/login")) {
+		return NextResponse.redirect(new URL("/", req.url));
+	}
 	if (PUBLIC_PATHS.some((path) => pathname.startsWith(path))) {
 		return NextResponse.next();
 	}

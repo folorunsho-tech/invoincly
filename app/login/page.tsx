@@ -4,6 +4,7 @@ import {
 	Button,
 	Divider,
 	Group,
+	LoadingOverlay,
 	Paper,
 	PasswordInput,
 	Stack,
@@ -13,8 +14,11 @@ import {
 import { useForm } from "@mantine/form";
 import Link from "next/link";
 import { login } from "./actions";
-
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 export default function page() {
+	const router = useRouter();
+	const [loading, setLoading] = useState(false);
 	const form = useForm({
 		initialValues: {
 			email: "",
@@ -27,7 +31,13 @@ export default function page() {
 	});
 
 	return (
-		<Paper radius='md' p='lg' withBorder w={400} className='mx-auto mt-12'>
+		<Paper
+			radius='md'
+			p='xs'
+			withBorder
+			w={350}
+			className='mx-auto mt-12 relative'
+		>
 			<Text size='lg' fw={500}>
 				Welcome back
 			</Text>
@@ -35,8 +45,17 @@ export default function page() {
 			<Divider label='Login with email' labelPosition='center' my='lg' />
 
 			<form
-				onSubmit={form.onSubmit((values) => {
-					login(values);
+				onSubmit={form.onSubmit(async (values) => {
+					setLoading(true);
+					const { data, error } = await login(values);
+					if (data.user) {
+						setLoading(false);
+						router.push("/");
+					}
+					if (error) {
+						setLoading(false);
+						form.setFieldError("email", "Invalid email or password");
+					}
 				})}
 			>
 				<Stack>
@@ -50,6 +69,7 @@ export default function page() {
 						}
 						error={form.errors.email && "Invalid email"}
 						radius='md'
+						type='email'
 					/>
 
 					<PasswordInput
@@ -73,6 +93,7 @@ export default function page() {
 					</Button>
 				</Group>
 			</form>
+			<LoadingOverlay visible={loading} />
 		</Paper>
 	);
 }
